@@ -1,0 +1,486 @@
+---
+title: "Eksamensæt"
+output:
+  word_document: default
+  pdf_document: default
+date: "2022-09-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Use data in constant prices (preferable).
+- Real GDP
+- Real house prices
+- Real stock of credit
+- Stock prices
+
+Make sure that you first remove the seasonality (run an F-test to see
+if this is necessary). Make sure to write the regression equations and
+hypotheses when you perform these procedures.
+
+
+A time series is a collection of random variables ordered in time. time series helps us to describe and illustrate inferences concerning the development of the data. 
+
+Decomposing a time series into components:
+$$X_t=seasonal_t+trend_t+irregular_t$$
+seasonallity can be shown at regular intervals (monthly or quarterly)
+the trend shows the trend of the variables
+irregular component even though lacks a well-defined pattern is
+somewhat predictable
+
+When seasonal fluctuations and trend are removed from an
+economic time series, the remaining irregular component in the
+medium to long term exhibits a cyclical pattern (due to expansions and
+contractions in the economy)
+
+
+When seasonal fluctuations and trend are removed from an economic time series,
+the remaining irregular component in the medium to long term exhibits a cyclical pattern (due to expansions and contractions in the economy)
+The "cyclical pattern" of the irregular component is of great interest to economists
+
+The difference between a cyclical and a seasonal component is that:
+1. Seasonality occurs at regular (seasonal) intervals (e.g., monthly or quarterly in typical macro data)
+2. Cyclical factors have usually a longer duration that varies from cycle to cycle
+
+if we look at various statistical techniques that can be used to
+decompose a time series into different components
+
+isolating seasonality, isolating trend and the remainder is irregular fluctuation
+
+$$X_t-seasonal_t-trend_t=irregular_t$$
+
+we are now going to isolate seasonality by using the dummy variable method
+
+$$Y_t=α + β_2D_2 + β_3D_3 + β_4D_4 + ε_t$$
+We can now run the F-test for the nulhypothesis $H_0:β_2 = β_3 = β_4 = 0$
+
+if we want to reject the $H_0$ we want $Y_t$ to display a significant seasonal pattern
+
+$$\hat{\epsilon_t} =(Y_t − \hat{Y_t})$$
+is our seasonally adjusted time series
+
+
+
+
+HUSK H0 HYPOTESE
+
+
+
+
+Starter med at indlæse dataet.
+```{r}
+library(readxl)
+data <- read_excel("C:/Users/celin/OneDrive/Skrivebord/Cand.oecon/5. Semester - Oecon BA/Økonometri/Assignments/data.xlsx")
+
+
+#Summarize the data:
+summary(data)
+
+#Vi opsætter nu variablerne som tidsserier:
+Real_credit <- ts(data$real_Credit, start = c(1950,2), end = c(2018, 2), frequency = 4)
+length(Real_credit)
+
+Real_GDP <- ts(data$real_gdp, start = c(1950,2), end = c(2018, 2), frequency = 4)
+length(Real_GDP)
+
+Real_house_prices <- ts(data$`real house prices`, start = c(1950,2), end = c(2018, 2), frequency = 4)
+length(Real_house_prices)
+
+Stock_prices <- ts(data$`stock prices`, start = c(1950,2), end = c(2018, 2), frequency = 4)
+length(Stock_prices)
+```
+
+Herefter plotter vi tidsserierne
+
+```{r}
+plot(Real_credit, xlab = "Year", ylab = "Real Credit", lwd = "2")
+plot(Real_GDP, xlab = "Year", ylab = "Real GDP", lwd = "2")
+plot(Real_house_prices, xlab = "Year", ylab = "Real house prices", lwd = "2")
+plot(Stock_prices, xlab = "Year", ylab = "Stock prices", lwd = "2")
+```
+
+Vi vil nu isolere for seasonallity i hver af variablerne
+
+```{r}
+#Tester for Real credit
+Real_credit_X <- cycle(Real_credit)
+Real_credit_q1 <- ifelse(Real_credit_X == "1", 2, 15)
+Real_credit_q2 <- ifelse(Real_credit_X == "2", 5, 15)
+Real_credit_q3 <- ifelse(Real_credit_X == "3", 8, 15)
+Real_credit_q4 <- ifelse(Real_credit_X == "4", 11, 15)
+summary(Real_credit_y.reg <- y.reg <- lm(Real_credit ~ Real_credit_q1 + Real_credit_q2 + Real_credit_q3))
+```
+Real_credit kan vi ikke afvise null hypotesen - F-statistic er usignifikant. 
+ingen andre signifikante quarters - ikke tydeligt bevis for seasonality for Real Credit
+
+```{r}
+#Tester for real GDP
+Real_GDP_X <- cycle(Real_GDP)
+Real_GDP_q1 <- ifelse(Real_GDP_X == "1", 2, 15)
+Real_GDP_q2 <- ifelse(Real_GDP_X == "2", 5, 15)
+Real_GDP_q3 <- ifelse(Real_GDP_X == "3", 8, 15)
+Real_GDP_q4 <- ifelse(Real_GDP_X == "4", 11, 15)
+summary(Real_GDP_y.reg <- y.reg <- lm(Real_GDP ~ Real_GDP_q1 + Real_GDP_q2 + Real_GDP_q3))
+```
+
+```{r}
+#Tester for Real House prices
+Real_house_prices_X <- cycle(Real_house_prices)
+Real_house_prices_q1 <- ifelse(Real_house_prices_X == "1", 2, 15)
+Real_house_prices_q2 <- ifelse(Real_house_prices_X == "2", 5, 15)
+Real_house_prices_q3 <- ifelse(Real_house_prices_X == "3", 8, 15)
+Real_house_prices_q4 <- ifelse(Real_house_prices_X == "4", 11, 15)
+summary(Real_house_prices_y.reg <-y.reg <- lm(Real_house_prices ~ Real_house_prices_q1 + Real_house_prices_q2 + Real_house_prices_q3))
+```
+
+```{r}
+#Tester for Stock prices
+Stock_prices_X <- cycle(Stock_prices)
+Stock_prices_q1 <- ifelse(Stock_prices_X == "1", 2, 15)
+Stock_prices_q2 <- ifelse(Stock_prices_X == "2", 5, 15)
+Stock_prices_q3 <- ifelse(Stock_prices_X == "3", 8, 15)
+Stock_prices_q4 <- ifelse(Stock_prices_X == "4", 11, 15)
+summary(Stock_prices_y.reg <- y.reg <- lm(Stock_prices ~ Stock_prices_q1 + Stock_prices_q2 + Stock_prices_q3))
+```
+
+
+
+
+
+# Plot the series with and without seasonality on the same graph.
+Vi vil starte med at undersøge $\hat{\epsilon_t}$ for tidsserierne
+```{r}
+res_Real_credit <- residuals(Real_credit_y.reg)
+res_Real_GDP <- residuals(Real_GDP_y.reg)
+res_Real_house_prices <- residuals(Real_house_prices_y.reg)
+res_Stock_prices <- residuals(Stock_prices_y.reg)
+```
+
+Plotter the residuals:
+```{r}
+plot(ts(res_Real_credit, start = 1950, frequency = 4), lwd = 2)
+plot(ts(res_Real_GDP, start = 1950, frequency = 4), lwd = 2)
+plot(ts(res_Real_house_prices, start = 1950, frequency = 4), lwd = 2)
+plot(ts(res_Stock_prices, start = 1950, frequency = 4), lwd = 2)
+```
+
+Plotter the fitted values:
+```{r}
+plot(ts(fitted.values(Real_credit_y.reg), start = 1950, frequency = 4), lwd = 2)
+plot(ts(fitted.values(Real_GDP_y.reg), start = 1950, frequency = 4), lwd = 2)
+plot(ts(fitted.values(Real_house_prices_y.reg), start = 1950, frequency = 4), lwd = 2)
+plot(ts(fitted.values(Stock_prices_y.reg), start = 1950, frequency = 4), lwd = 2)
+```
+
+Der plottes nu de-seasonalised series i forbindelse med den oprindelige
+```{r}
+Real_credit_yhat <- residuals(Real_credit_y.reg) + mean(fitted.values(Real_credit_y.reg))
+ts.plot(Real_credit, Real_credit_yhat, lty = c(3, 1), lwd = c(4, 1))
+legend(1950, max(Real_credit), c("Real_credit", "Seasonally adjusted Real credit (Real_credit_yhat)"), lty = c(3,
+1))
+
+Real_GDP_yhat <- residuals(Real_GDP_y.reg) + mean(fitted.values(Real_GDP_y.reg))
+ts.plot(Real_GDP, Real_GDP_yhat, lty = c(3, 1), lwd = c(4, 1))
+legend(1950, max(Real_GDP), c("Real_GDP", "Seasonally adjusted Real GDP (Real_GDP_yhat)"), lty = c(3,
+1))
+
+
+Real_house_prices_yhat <- residuals(Real_house_prices_y.reg) + mean(fitted.values(Real_house_prices_y.reg))
+ts.plot(Real_house_prices, Real_house_prices_yhat, lty = c(3, 1), lwd = c(4, 1))
+legend(1950, max(Real_house_prices), c("Real_house_prices", "Seasonally adjusted Real house prices (Real_house_prices_yhat)"), lty = c(3,
+1))
+
+Stock_prices_yhat <- residuals(Stock_prices_y.reg) + mean(fitted.values(Stock_prices_y.reg))
+ts.plot(Stock_prices, Stock_prices_yhat, lty = c(3, 1), lwd = c(4, 1))
+legend(1950, max(Stock_prices), c("Stock_prices", "Seasonally adjusted Stock prices (Stock_prices_yhat)"), lty = c(3,
+1))
+```
+
+
+
+
+# If there is a trend in the data, detrend the variables using HP-filter. Use the HP-filter with λ = 1600. Don’t forget to re-normalize the series
+
+When isolating the trend in a lineat time trends we can run the following regression equation
+
+$$output_t= α + βyear_t + ε_t$$
+If there is a linear time trend, $β$ will have a significant t-value.
+If the t-value is significant, then we use $\hat{ε_t}$ as our variable for
+detrended output.
+If the t-value is not significant, then we continue the exercise using
+$output_t$
+
+if the time trend is non linear it will se necessary to remove a quadratic time trend
+
+
+
+We will use the Hodrick-Prescott Filter
+
+The HP gilter allows for a more flexible trend.
+$X_t$ is the sum os a cyclical componenet, $X_t^c$
+a trend component $X_t^t$
+a contemporaneous shock $ε_t$
+
+$$X_t=X^c_t + X^t_t + ε_t$$
+a parameter which reflects the relative variance of the trend component to the cyclical component, $λ$
+
+a given $λ$, choose the trend component, $X^t_t$, which minimizes the following loss function
+
+
+Modellerne estimeres:
+```{r}
+date <- data$date
+summary(Real_credit_trend_y.reg <- y.reg <- lm(Real_credit ~ date))
+```
+
+```{r}
+summary(Real_GDP_trend_y.reg <- y.reg <- lm(Real_GDP ~ date))
+```
+
+```{r}
+summary(Real_house_prices_trend_y.reg <- y.reg <- lm(Real_house_prices ~ date))
+```
+
+```{r}
+summary(Stock_prices_trend_y.reg <- y.reg <- lm(Stock_prices ~ date))
+```
+
+Her ses det at alle t-value er signifikante derfor ses på $\hat{\epsilon_t}$
+```{r}
+ty_RC = residuals(Real_credit_trend_y.reg)
+ty1_RC = ty_RC + Real_credit[1]
+
+ty_RGDP = residuals(Real_GDP_trend_y.reg)
+ty1_RGDP = ty_RGDP + Real_GDP[1]
+
+ty_RHP = residuals(Real_house_prices_trend_y.reg)
+ty1_RHP = ty_RHP + Real_house_prices[1]
+
+ty_SP = residuals(Stock_prices_trend_y.reg)
+ty1_SP = ty_SP + Stock_prices[1]
+```
+
+Undersøg $\hat{Output_t}$. Dette er din tidstrend, det vil sige på lang sigt
+(lineær) væksttendens for produktionen. Den kan fås i R ved skrivning:
+```{r}
+trend_RC <- fitted.values(Real_credit_trend_y.reg)
+trend_RGDP <- fitted.values(Real_GDP_trend_y.reg)
+trend_RHP <- fitted.values(Real_house_prices_trend_y.reg)
+trend_SP <- fitted.values(Stock_prices_trend_y.reg)
+```
+
+
+Tegn en graf af den originale serie, sammen med tidens trend og residuals:
+```{r}
+ts.plot(Real_credit, trend_RC, ty1_RC, lty = c(1,3), lwd = c(2, 2, 2), xlab = "Year",
+col = c("black", "red", "blue"))
+legend(1950, max(Real_credit), c("Real credit (original series)", "trend", "Real credit (detrended series)"), lty = (1:3))
+
+ts.plot(Real_GDP, trend_RGDP, ty1_RGDP, lty = c(1,3), lwd = c(2, 2, 2), xlab = "Year",
+col = c("black", "red", "blue"))
+legend(1950, max(Real_GDP), c("Real GDP (original series)", "trend", "Real GDP (detrended series)"), lty = (1:3))
+
+ts.plot(Real_house_prices, trend_RHP, ty1_RHP, lty = c(1,3), lwd = c(2, 2, 2), xlab = "Year",
+col = c("black", "red", "blue"))
+legend(1950, max(Real_house_prices), c("Real house prices (original series)", "trend", "Real house prices (detrended series)"), lty = (1:3))
+
+ts.plot(Stock_prices, trend_SP, ty1_SP, lty = c(1,3), lwd = c(2, 2, 2), xlab = "Year",
+col = c("black", "red", "blue"))
+legend(1950, max(Stock_prices), c("Stock prices (original series)", "trend", "Stock prices (detrended series)"), lty = (1:3))
+```
+BNP - Andre faktore der påvirker bnp
+hvis man fjerne seasonality og trend kan dataen blive stationary, men det gælder ikke alle
+
+Som det kan ses er der trend i serien og først er den fundet som liniær trend nu findes den som mere volatil trend ved brug af HP filter
+```{r}
+library(mFilter)
+lambda <- 1600
+hp_RC <- hpfilter(Real_credit, lambda)
+hptrend_RC <- hp_RC$trend
+
+library(mFilter)
+lambda <- 1600
+hp_RGDP <- hpfilter(Real_GDP, lambda)
+hptrend_RGDP <- hp_RGDP$trend
+
+library(mFilter)
+lambda <- 1600
+hp_RHP <- hpfilter(Real_house_prices, lambda)
+hptrend_RHP <- hp_RHP$trend
+
+library(mFilter)
+lambda <- 1600
+hp_SP <- hpfilter(Stock_prices, lambda)
+hptrend_SP <- hp_SP$trend
+```
+
+En H-P detrended serie kan oprettes i R ved at skrive:
+```{r}
+hp_dRC <- Real_credit - hptrend_RC
+hpy1_dRC <- hp_dRC + Real_credit[1]
+
+hp_dRGDP <- Real_GDP - hptrend_RGDP
+hpy1_dRGDP <- hp_dRGDP + Real_GDP[1]
+
+hp_dRHP <- Real_house_prices - hptrend_RHP
+hpy1_dRHP <- hp_dRHP + Real_house_prices[1]
+
+hp_dSP <- Stock_prices - hptrend_SP
+hpy1_dSP <- hp_dSP + Stock_prices[1]
+```
+
+Den nye serie plottet
+```{r}
+ts.plot(Real_credit, hptrend_RC, hpy1_dRC, lty = c(1,3), lwd = c(2, 2, 2), xlab = "Year",
+col = c("black", "red", "blue"))
+legend(1950, max(Real_credit), c("Real credit (original series)", "hptrend", "Real credit (detrended series)"), lty = (1:3))
+
+ts.plot(Real_GDP, hptrend_RGDP, hpy1_dRGDP, lty = c(1,3), lwd = c(2, 2, 2), xlab = "Year",
+col = c("black", "red", "blue"))
+legend(1950, max(Real_GDP), c("Real GDP (original series)", "hptrend", "Real GDP (detrended series)"), lty = (1:3))
+
+ts.plot(Real_house_prices, hptrend_RHP, hpy1_dRHP, lty = c(1,3), lwd = c(2, 2, 2), xlab = "Year",
+col = c("black", "red", "blue"))
+legend(1950, max(Real_house_prices), c("Real house prices (original series)", "hptrend", "Real house prices (detrended series)"), lty = (1:3))
+
+ts.plot(Stock_prices, hptrend_SP, hpy1_dSP, lty = c(1,3), lwd = c(3, 3, 3), xlab = "Year",
+col = c("black", "red", "blue"))
+legend(1950, max(Stock_prices), c("Stock prices (original series)", "hptrend", "Stock prices (detrended series)"), lty = (1:3))
+```
+
+Der henvises også til forskellen mellem faktisk produktion og trend
+som "output gap" (blå linje i ovenstående plot). Trend i så fald
+repræsenterer "potentielt output"
+
+
+
+
+# Explore the dynamic correlations (or cross-correlations) using real GDP as a reference variable. You can make a Table like the one in Lecture no. 2. Also, show the plots of dynamic correlations. The plots should clearly show all the statistically relevant lags 
+
+```{r}
+RGDP <- as.numeric(Real_GDP)
+RC <- as.numeric(Real_credit)
+RHP <- as.numeric(Real_house_prices)
+SP <- as.numeric(Stock_prices)
+
+cc_RGDP_RC <- ccf(RGDP, RC, 1, pl = F)
+cc_RGDP_RC
+cc_RGDP_RHP <- ccf(RGDP, RHP, 1, pl = F)
+cc_RGDP_RHP
+cc_RGDP_SP <- ccf(RGDP,SP, 1, pl = F)
+cc_RGDP_SP
+```
+Plots:
+```{r}
+plot(cc_RGDP_RC, ci=0.95, ylab="", xlab="", main="") 
+plot(cc_RGDP_RHP, ci=0.95, ylab="", xlab="", main="")
+plot(cc_RGDP_SP, ci=0.95, ylab="", xlab="", main="") 
+```
+
+
+
+Contemporaneous correlation: It is the correlation between two
+variables in time period (t)
+To calculate the contemporaneous correlation between x(t) and y(t)
+write: cor(x,y)
+To calculate a series of dynamic or cross-correlations between x(t)
+and lags and leads of y(t) we use the cross-correlation function ccf
+
+
+Note: reference variable is y(t) - you can see how lags and leads of x are correlated
+with y(t).
+The dotted blue line shows 95 percent confidence intervals - in this case we can
+see that all correlations are statistically significant. If you write ci=99 in the code,
+it will set ci to 99 percent.
+
+
+
+# Calculate cyclical volatility of your data.
+Vi opstiller formlen for at udregne cyclical volatility:
+$$
+\text{Volatility x} = s.d. [(\frac{x_t-trend(x)_t}{trend(x)_t})*100] 
+$$
+
+```{r}
+library(mFilter)
+lambda <- 1600
+hp = hpfilter(RC, lambda)
+trend_credit <- hp$trend
+
+credit_dt <- Real_credit - trend_credit
+
+v_credit <- ((Real_credit - trend_credit) * 100/trend_credit)
+
+sd(v_credit)
+
+
+hp = hpfilter(Real_GDP, lambda)
+trend_gdp <- hp$trend
+
+gdp_dt <- Real_GDP - trend_gdp
+
+v_gdp <- ((Real_GDP - trend_gdp) * 100/trend_gdp)
+
+sd(v_gdp)
+
+
+hp = hpfilter(Real_house_prices, lambda)
+trend_HP <- hp$trend
+
+HP_dt <- Real_house_prices - trend_HP
+
+v_HP <- ((Real_house_prices - trend_HP) * 100/trend_HP)
+
+sd(v_HP)
+
+
+hp = hpfilter(Stock_prices, lambda)
+trend_SP <- hp$trend
+
+SP_dt <- Stock_prices - trend_SP
+
+v_SP <- ((Stock_prices - trend_SP) * 100/trend_SP)
+
+sd(v_SP)
+```
+
+Herefter opsættes dette graphisk
+```{r}
+plot(date,credit_dt, t="l") 
+
+plot(date, gdp_dt, t="l")
+
+plot(date, HP_dt, t="l")
+
+plot(date, SP_dt, t="l")
+```
+
+
+# Do a short and precise commentary on the correlations and volatility (e.g., which variable is the most and least volatile, which variables are procyclical and countercyclical, which variables lag and lead the business cycle, etc.).
+
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+
+p = ggplot() + 
+  geom_line(aes(x = date, y = credit_dt), color = "blue") +
+  geom_line(aes(x = date, y = gdp_dt), color = "red") +
+  geom_line(aes(x = date, y = HP_dt), color = "green", lwd = 2) +
+  geom_line(aes(x = date, y = SP_dt), color = "black") +
+  xlab('Dates') +
+  ylab('')
+
+print(p)
+```
+
+Den mest volatible variabel er stock prices, hvor real house prices, real GDP og real credit er langt mindre volatil men stadig mildt volatil i samme rækkefølge som opsat. Hvor real house prices og stock prices er countercyclical hvilket kan ses at deres udslag næsten ikke forekommer sammenlignet med de andre variable mens RGDP og Real credit er pro cyclical. Hertil real GDP og Real credit lede buissnes cycle mens stock og house prices vil lag grundet deres påvirkning af GDP og credit. 
+
+
+
+
+
+
+
