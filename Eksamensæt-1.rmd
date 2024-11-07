@@ -66,10 +66,138 @@ is our seasonally adjusted time series
 
 HUSK H0 HYPOTESE
 
+```{r}
+# Load necessary libraries
+library(dplyr)
+
+# Read CSV files
+OMXC20 <- read.csv("Data/OMXC20.csv")
+OMXS30 <- read.csv("Data/OMXS30.csv")
+
+# Convert Date columns to Date format
+OMXC20$Date <- as.Date(OMXC20$Date, format = "%m/%d/%Y")
+OMXS30$Date <- as.Date(OMXS30$Date, format = "%m/%d/%Y")
+
+# Ensure Close.Last is numeric
+OMXC20$Close.Last <- as.numeric(OMXC20$Close.Last)
+OMXS30$Close.Last <- as.numeric(OMXS30$Close.Last)
+
+# Remove rows with NA values
+OMXC20 <- na.omit(OMXC20)
+OMXS30 <- na.omit(OMXS30)
+
+# Find common dates
+common_dates <- intersect(OMXC20$Date, OMXS30$Date)
+
+# Subset datasets to common dates
+OMXC20_common <- OMXC20[OMXC20$Date %in% common_dates, ]
+OMXS30_common <- OMXS30[OMXS30$Date %in% common_dates, ]
+
+# Sort datasets by date
+OMXC20_common <- OMXC20_common[order(OMXC20_common$Date), ]
+OMXS30_common <- OMXS30_common[order(OMXS30_common$Date), ]
+
+# Normalize starting from the first common date
+OMXC20_common$Normalized <- OMXC20_common$Close.Last / OMXC20_common$Close.Last[1]
+OMXS30_common$Normalized <- OMXS30_common$Close.Last / OMXS30_common$Close.Last[1]
+
+# Plot the normalized data
+plot(OMXC20_common$Date, OMXC20_common$Normalized, type = "l", col = "blue", 
+     main = "Relative Close.Last Over Time for Scandinavian Indices", 
+     xlab = "Date", ylab = "Relative Close.Last (Start = 1)")
+
+lines(OMXS30_common$Date, OMXS30_common$Normalized, col = "green")
+
+legend("topright", legend = c("OMXC20", "OMXS30"),
+       col = c("blue", "green"), lty = 1)
+
+```
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(zoo)
+
+# Read CSV files
+OMXC20 <- read.csv("Data/OMXC20.csv")
+OMXS30 <- read.csv("Data/OMXS30.csv")
+
+# Convert Date columns to Date format
+OMXC20$Date <- as.Date(OMXC20$Date, format = "%m/%d/%Y")
+OMXS30$Date <- as.Date(OMXS30$Date, format = "%m/%d/%Y")
+
+# Ensure Close.Last is numeric
+OMXC20$Close.Last <- as.numeric(OMXC20$Close.Last)
+OMXS30$Close.Last <- as.numeric(OMXS30$Close.Last)
+
+# Remove rows with NA values
+OMXC20 <- na.omit(OMXC20)
+OMXS30 <- na.omit(OMXS30)
+
+# Select necessary columns and rename Close.Last
+OMXC20_subset <- OMXC20 %>%
+  select(Date, Close.Last) %>%
+  rename(OMXC20_Close = Close.Last)
+
+OMXS30_subset <- OMXS30 %>%
+  select(Date, Close.Last) %>%
+  rename(OMXS30_Close = Close.Last)
+
+# Merge datasets using full_join to include all dates
+merged_data <- full_join(OMXC20_subset, OMXS30_subset, by = "Date")
+
+# Sort by Date
+merged_data <- merged_data %>% arrange(Date)
+
+# Forward fill missing values
+merged_data$OMXC20_Close <- na.locf(merged_data$OMXC20_Close, na.rm = FALSE)
+merged_data$OMXS30_Close <- na.locf(merged_data$OMXS30_Close, na.rm = FALSE)
+
+# Remove any rows where either Close price is still NA
+merged_data <- merged_data[!is.na(merged_data$OMXC20_Close) & !is.na(merged_data$OMXS30_Close), ]
+
+# Normalize starting from the first date where both indices have data
+merged_data$OMXC20_Normalized <- merged_data$OMXC20_Close / merged_data$OMXC20_Close[1]
+merged_data$OMXS30_Normalized <- merged_data$OMXS30_Close / merged_data$OMXS30_Close[1]
+
+# Plot the normalized data
+plot(merged_data$Date, merged_data$OMXC20_Normalized, type = "l", col = "blue",
+     main = "Relative Close.Last Over Time for Scandinavian Indices",
+     xlab = "Date", ylab = "Relative Close.Last (Start = 1)")
+
+lines(merged_data$Date, merged_data$OMXS30_Normalized, col = "green")
+
+legend("topright", legend = c("OMXC20", "OMXS30"),
+       col = c("blue", "green"), lty = 1)
+
+```
+
+
+```{r}
+library(tseries)
+
+# Run the ADF test on OMXC20 Close prices
+adf_test_OMXC20 <- adf.test(merged_data$OMXC20_Close, alternative = "stationary")
+
+# Run the ADF test on OMXS30 Close prices
+adf_test_OMXS30 <- adf.test(merged_data$OMXS30_Close, alternative = "stationary")
+
+# Display the results
+cat("ADF Test Result for OMXC20 Close Prices:\n")
+print(adf_test_OMXC20)
+cat("\nADF Test Result for OMXS30 Close Prices:\n")
+print(adf_test_OMXS30)
 
 
 
-Starter med at indlæse dataet.
+```
+
+
+
+
+
+
+
+
 ```{r}
 library(readxl)
 data <- read_excel("C:/Users/celin/OneDrive/Skrivebord/Cand.oecon/5. Semester - Oecon BA/Økonometri/Assignments/data.xlsx")
