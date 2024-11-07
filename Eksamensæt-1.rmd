@@ -72,12 +72,15 @@ library(readxl)
 DanishBNP <- read_excel("Data/danishBNP.xlsx", sheet = 1)
 DanishInflation <- read_excel("Data/danishinflation.xlsx", sheet = 1)
 DanishInflation <- DanishInflation[3:nrow(DanishInflation), ]
-colnames(DanishInterestReate) <- c("year", "Inflation")
+colnames(DanishInflation) <- c("year", "Inflation")
+DanishInflation <- na.omit(DanishInflation)
 
 
 DanishInterestReate <- read_excel("Data/danishinterestrate.xlsx", sheet = 1)
-DanishInterestReate <- DanishInterestReate[3:nrow(DanishInterestReate), ]
+DanishInterestReate <- DanishInterestReate[3:37,]
 colnames(DanishInterestReate) <- c("year", "InterestRate")
+DanishInterestReate <- na.omit(DanishInterestReate)
+
 
 DanishUnemployment <- read_excel("Data/danishunemployment.xlsx", sheet = 1)
 
@@ -85,7 +88,7 @@ DanishUnemployment <- read_excel("Data/danishunemployment.xlsx", sheet = 1)
 SWEBNP <- read_excel("Data/SwedenGDP.xlsx", sheet = 1)
 SWEInflation <- read.csv("Data/sweden-inflation-rate-cpi.csv")
 SWEInterestReate <- read_excel("Data/swedeninterestrate.xls", sheet = 1)
-SWEUnemployment <- read.csv("Data/sweden-unemployment-rate.csv")
+SWEUnemployment <- read.csv("Data/sweden-unemployment-rate.csv", skip = 8)
 
 OMXC20 <- read.csv("Data/OMXC20.csv")
 OMXS30 <- read.csv("Data/OMXS30.csv")
@@ -152,10 +155,8 @@ legend("topright", legend = c("OMXC20", "OMXS30"),
 ```{r}
 library(tseries)
 
-# Run the ADF test on OMXC20 Close prices
+# Run the ADF test on market Close prices
 adf_test_OMXC20 <- adf.test(OMXC20$Close.Last, alternative = "stationary")
-
-# Run the ADF test on OMXS30 Close prices
 adf_test_OMXS30 <- adf.test(OMXS30$Close.Last, alternative = "stationary")
 
 # Display the results
@@ -163,6 +164,19 @@ cat("ADF Test Result for OMXC20 Close Prices:\n")
 print(adf_test_OMXC20)
 cat("\nADF Test Result for OMXS30 Close Prices:\n")
 print(adf_test_OMXS30)
+
+#Denmark
+adf_test_DBNP <- adf.test(DanishBNP$`2020-priser, kædede værdier`, alternative = "stationary")
+adf_test_Dinflation <- adf.test(DanishInflation$Inflation, alternative = "stationary")
+adf_test_Dinterest <- adf.test(DanishInterestReate$InterestRate, alternative = "stationary")
+adf_test_Dunemployment <- adf.test(DanishUnemployment$`Procent af arbejdsstyrken`, alternative = "stationary")
+
+print(adf_test_DBNP)
+print(adf_test_Dinflation)
+print(adf_test_Dinterest)
+print(adf_test_Dunemployment)
+
+
 
 
 
