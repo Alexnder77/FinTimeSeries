@@ -47,7 +47,8 @@ The difference between a cyclical and a seasonal component is that:
 if we look at various statistical techniques that can be used to
 decompose a time series into different components
 
-isolating seasonality, isolating trend and the remainder is irregular fluctuation
+isolating seasonality, isolating trend and the remainder is irregular fluctuation$$Y_t=α + β_2D_2 + β_3D_3 + β_4D_4 + ε_t$$
+We can now run the F-test for the nulhypothesis $H_0:β_2 = β_3 = β_4 = 0$
 
 $$X_t-seasonal_t-trend_t=irregular_t$$
 
@@ -63,63 +64,39 @@ is our seasonally adjusted time series
 
 
 
-
-HUSK H0 HYPOTESE
-
 ```{r}
 # Load necessary libraries
 library(dplyr)
+library(readxl)
 
-# Read CSV files
+DanishBNP <- read_excel("Data/danishBNP.xlsx", sheet = 1)
+DanishInflation <- read_excel("Data/danishinflation.xlsx", sheet = 1)
+DanishInflation <- DanishInflation[3:nrow(DanishInflation), ]
+colnames(DanishInterestReate) <- c("year", "Inflation")
+
+
+DanishInterestReate <- read_excel("Data/danishinterestrate.xlsx", sheet = 1)
+DanishInterestReate <- DanishInterestReate[3:nrow(DanishInterestReate), ]
+colnames(DanishInterestReate) <- c("year", "InterestRate")
+
+DanishUnemployment <- read_excel("Data/danishunemployment.xlsx", sheet = 1)
+
+
+SWEBNP <- read_excel("Data/SwedenGDP.xlsx", sheet = 1)
+SWEInflation <- read.csv("Data/sweden-inflation-rate-cpi.csv")
+SWEInterestReate <- read_excel("Data/swedeninterestrate.xls", sheet = 1)
+SWEUnemployment <- read.csv("Data/sweden-unemployment-rate.csv")
+
 OMXC20 <- read.csv("Data/OMXC20.csv")
 OMXS30 <- read.csv("Data/OMXS30.csv")
 
-# Convert Date columns to Date format
-OMXC20$Date <- as.Date(OMXC20$Date, format = "%m/%d/%Y")
-OMXS30$Date <- as.Date(OMXS30$Date, format = "%m/%d/%Y")
-
-# Ensure Close.Last is numeric
-OMXC20$Close.Last <- as.numeric(OMXC20$Close.Last)
-OMXS30$Close.Last <- as.numeric(OMXS30$Close.Last)
-
-# Remove rows with NA values
-OMXC20 <- na.omit(OMXC20)
-OMXS30 <- na.omit(OMXS30)
-
-# Find common dates
-common_dates <- intersect(OMXC20$Date, OMXS30$Date)
-
-# Subset datasets to common dates
-OMXC20_common <- OMXC20[OMXC20$Date %in% common_dates, ]
-OMXS30_common <- OMXS30[OMXS30$Date %in% common_dates, ]
-
-# Sort datasets by date
-OMXC20_common <- OMXC20_common[order(OMXC20_common$Date), ]
-OMXS30_common <- OMXS30_common[order(OMXS30_common$Date), ]
-
-# Normalize starting from the first common date
-OMXC20_common$Normalized <- OMXC20_common$Close.Last / OMXC20_common$Close.Last[1]
-OMXS30_common$Normalized <- OMXS30_common$Close.Last / OMXS30_common$Close.Last[1]
-
-# Plot the normalized data
-plot(OMXC20_common$Date, OMXC20_common$Normalized, type = "l", col = "blue", 
-     main = "Relative Close.Last Over Time for Scandinavian Indices", 
-     xlab = "Date", ylab = "Relative Close.Last (Start = 1)")
-
-lines(OMXS30_common$Date, OMXS30_common$Normalized, col = "green")
-
-legend("topright", legend = c("OMXC20", "OMXS30"),
-       col = c("blue", "green"), lty = 1)
-
 ```
+
+
 ```{r}
 # Load necessary libraries
 library(dplyr)
 library(zoo)
-
-# Read CSV files
-OMXC20 <- read.csv("Data/OMXC20.csv")
-OMXS30 <- read.csv("Data/OMXS30.csv")
 
 # Convert Date columns to Date format
 OMXC20$Date <- as.Date(OMXC20$Date, format = "%m/%d/%Y")
@@ -176,10 +153,10 @@ legend("topright", legend = c("OMXC20", "OMXS30"),
 library(tseries)
 
 # Run the ADF test on OMXC20 Close prices
-adf_test_OMXC20 <- adf.test(merged_data$OMXC20_Close, alternative = "stationary")
+adf_test_OMXC20 <- adf.test(OMXC20$Close.Last, alternative = "stationary")
 
 # Run the ADF test on OMXS30 Close prices
-adf_test_OMXS30 <- adf.test(merged_data$OMXS30_Close, alternative = "stationary")
+adf_test_OMXS30 <- adf.test(OMXS30$Close.Last, alternative = "stationary")
 
 # Display the results
 cat("ADF Test Result for OMXC20 Close Prices:\n")
@@ -190,11 +167,29 @@ print(adf_test_OMXS30)
 
 
 ```
+```{r}
+anyNA(OMXC20$OMXC20_Close)
+anyNA(OMXS30$OMXS30_Close)
+
+any(is.infinite(OMXC20$OMXC20_Close))
+any(is.infinite(OMXS30$OMXS30_Close))
+
+
+str(OMXC20)
+str(OMXS30)
+
+
+```
 
 
 
 
 
+```{r}
+adf_test_OMXC20 <- adf.test(OMXC20$OMXC20_Close, alternative = "stationary")
+adf_test_OMXS30 <- adf.test(OMXS30$OMXS30_Close, alternative = "stationary")
+
+```
 
 
 
