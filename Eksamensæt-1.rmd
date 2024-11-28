@@ -68,8 +68,14 @@ is our seasonally adjusted time series
 # Load necessary libraries
 library(dplyr)
 library(readxl)
+library(zoo)
+
 
 DanishBNP <- read_excel("Data/danishBNP.xlsx", sheet = 1)
+colnames(DanishBNP) <- c("Year_K", "BNP")
+DanishBNP$Year_K <- gsub("K", " Q", DanishBNP$Year_K)
+DanishBNP$YearQtr <- as.yearqtr(DanishBNP$Year_K, format = "%Y Q%q")
+
 DanishInflation <- read_excel("Data/danishinflation.xlsx", sheet = 1)
 DanishInflation <- DanishInflation[3:nrow(DanishInflation), ]
 colnames(DanishInflation) <- c("year", "Inflation")
@@ -86,9 +92,26 @@ DanishUnemployment <- read_excel("Data/danishunemployment.xlsx", sheet = 1)
 
 
 SWEBNP <- read_excel("Data/SwedenGDP.xlsx", sheet = 1)
+colnames(SWEBNP) <- c("Year_K", "BNP")
+SWEBNP$Year_K <- gsub("K", " Q", SWEBNP$Year_K)
+SWEBNP$YearQtr <- as.yearqtr(SWEBNP$Year_K, format = "%Y Q%q")
+
+
 SWEInflation <- read.csv("Data/sweden-inflation-rate-cpi.csv")
+
 SWEInterestReate <- read_excel("Data/swedeninterestrate.xls", sheet = 1)
-SWEUnemployment <- read.csv("Data/sweden-unemployment-rate.csv", skip = 8)
+colnames(SWEInterestReate) <- c("Year", "Interest_Reate")
+
+
+SWEUnemployment <- read_excel("Data/sweden-unemployment.xls", sheet = 1)
+SWEUnemployment <- SWEUnemployment[-1, ]
+colnames(SWEUnemployment) <- c("Year", "Unemployment_Rate")
+SWEUnemployment$Year <- as.Date(as.numeric(SWEUnemployment$Year), origin = "1900-01-01")
+SWEUnemployment$Year <- format(SWEUnemployment$Year, "%Y")
+SWEUnemployment$Year <- as.numeric(SWEUnemployment$Year)
+
+
+
 
 OMXC20 <- read.csv("Data/OMXC20.csv")
 OMXS30 <- read.csv("Data/OMXS30.csv")
@@ -170,6 +193,11 @@ adf_test_DBNP <- adf.test(DanishBNP$`2020-priser, kædede værdier`, alternative
 adf_test_Dinflation <- adf.test(DanishInflation$Inflation, alternative = "stationary")
 adf_test_Dinterest <- adf.test(DanishInterestReate$InterestRate, alternative = "stationary")
 adf_test_Dunemployment <- adf.test(DanishUnemployment$`Procent af arbejdsstyrken`, alternative = "stationary")
+
+#Sweden
+
+
+
 
 print(adf_test_DBNP)
 print(adf_test_Dinflation)
