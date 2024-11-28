@@ -63,7 +63,7 @@ $$\hat{\epsilon_t} =(Y_t − \hat{Y_t})$$
 is our seasonally adjusted time series
 
 
-
+## Loading data
 ```{r}
 # Load necessary libraries
 library(dplyr)
@@ -97,7 +97,9 @@ SWEBNP$Year_K <- gsub("K", " Q", SWEBNP$Year_K)
 SWEBNP$YearQtr <- as.yearqtr(SWEBNP$Year_K, format = "%Y Q%q")
 
 
-SWEInflation <- read.csv("Data/sweden-inflation-rate-cpi.csv")
+SWEInflation <- read_excel("Data/sweden-inflation.xlsx", sheet = 1)
+colnames(SWEInflation) <- c("Year", "Inflation")
+
 
 SWEInterestReate <- read_excel("Data/swedeninterestrate.xls", sheet = 1)
 colnames(SWEInterestReate) <- c("Year", "Interest_Reate")
@@ -110,15 +112,25 @@ SWEUnemployment$Year <- as.Date(as.numeric(SWEUnemployment$Year), origin = "1900
 SWEUnemployment$Year <- format(SWEUnemployment$Year, "%Y")
 SWEUnemployment$Year <- as.numeric(SWEUnemployment$Year)
 
-
-
-
 OMXC20 <- read.csv("Data/OMXC20.csv")
 OMXS30 <- read.csv("Data/OMXS30.csv")
 
+
+# Ensure numeric columns are indeed numeric
+DanishInflation$Inflation <- as.numeric(DanishInflation$Inflation)
+DanishInterestReate$InterestRate <- as.numeric(DanishInterestReate$InterestRate)
+DanishUnemployment$`Procent af arbejdsstyrken` <- as.numeric(DanishUnemployment$`Procent af arbejdsstyrken`)
+
+SWEInflation$Inflation <- as.numeric(SWEInflation$Inflation)
+SWEInterestReate$Interest_Reate <- as.numeric(SWEInterestReate$Interest_Reate)
+SWEUnemployment$Unemployment_Rate <- as.numeric(SWEUnemployment$Unemployment_Rate)
+
+OMXC20$Close.Last <- as.numeric(OMXC20$Close.Last)
+OMXS30$Close.Last <- as.numeric(OMXS30$Close.Last)
+
 ```
 
-
+## Plot OMXC20 vs OMXS30
 ```{r}
 # Load necessary libraries
 library(dplyr)
@@ -173,7 +185,7 @@ legend("topright", legend = c("OMXC20", "OMXS30"),
        col = c("blue", "green"), lty = 1)
 
 ```
-
+## ADF Test
 
 ```{r}
 library(tseries)
@@ -182,54 +194,162 @@ library(tseries)
 adf_test_OMXC20 <- adf.test(OMXC20$Close.Last, alternative = "stationary")
 adf_test_OMXS30 <- adf.test(OMXS30$Close.Last, alternative = "stationary")
 
+#Denmark
+adf_test_DBNP <- adf.test(DanishBNP$BNP, alternative = "stationary")
+adf_test_Dinflation <- adf.test(DanishInflation$Inflation, alternative = "stationary")
+adf_test_Dinterest <- adf.test(DanishInterestReate$InterestRate, alternative = "stationary")
+adf_test_Dunemployment <- adf.test(DanishUnemployment$`Procent af arbejdsstyrken`, alternative = "stationary")
+
+#Sweden
+adf_test_SBNP <- adf.test(SWEBNP$BNP, alternative = "stationary")
+adf_test_Sinflation <- adf.test(SWEInflation$Inflation, alternative = "stationary")
+adf_test_Sinterest <- adf.test(SWEInterestReate$Interest_Reate, alternative = "stationary")
+adf_test_Sunemployment <- adf.test(SWEUnemployment$Unemployment_Rate, alternative = "stationary")
+
+
 # Display the results
 cat("ADF Test Result for OMXC20 Close Prices:\n")
 print(adf_test_OMXC20)
 cat("\nADF Test Result for OMXS30 Close Prices:\n")
 print(adf_test_OMXS30)
 
-#Denmark
-adf_test_DBNP <- adf.test(DanishBNP$`2020-priser, kædede værdier`, alternative = "stationary")
-adf_test_Dinflation <- adf.test(DanishInflation$Inflation, alternative = "stationary")
-adf_test_Dinterest <- adf.test(DanishInterestReate$InterestRate, alternative = "stationary")
-adf_test_Dunemployment <- adf.test(DanishUnemployment$`Procent af arbejdsstyrken`, alternative = "stationary")
-
-#Sweden
-
-
-
-
 print(adf_test_DBNP)
 print(adf_test_Dinflation)
 print(adf_test_Dinterest)
 print(adf_test_Dunemployment)
 
+print(adf_test_SBNP)
+print(adf_test_Sinflation)
+print(adf_test_Sinterest)
+print(adf_test_Sunemployment)
+
+```
+## first-order differencing
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(readxl)
+library(zoo)
+library(tseries)
+library(ggplot2)
 
 
+
+## First-Order Differencing
+
+# For Denmark
+diff_DBNP <- diff(DanishBNP$BNP)
+diff_Dinflation <- diff(DanishInflation$Inflation)
+diff_Dinterest <- diff(DanishInterestReate$InterestRate)
+diff_Dunemployment <- diff(DanishUnemployment$`Procent af arbejdsstyrken`)
+
+# For Sweden
+diff_SBNP <- diff(SWEBNP$BNP)
+diff_Sinflation <- diff(SWEInflation$Inflation)
+diff_Sinterest <- diff(SWEInterestReate$Interest_Reate)
+diff_Sunemployment <- diff(SWEUnemployment$Unemployment_Rate)
+
+# For OMXC20 and OMXS30
+diff_OMXC20 <- diff(OMXC20$Close.Last)
+diff_OMXS30 <- diff(OMXS30$Close.Last)
+
+## Apply the ADF Test on Differenced Series
+
+# Function to display ADF test results
+display_adf_result <- function(adf_result, variable_name) {
+  cat("\nADF Test Result for", variable_name, ":\n")
+  print(adf_result)
+}
+
+# Denmark
+adf_diff_DBNP <- adf.test(diff_DBNP, alternative = "stationary")
+display_adf_result(adf_diff_DBNP, "Differenced Danish GDP (BNP)")
+
+adf_diff_Dinflation <- adf.test(diff_Dinflation, alternative = "stationary")
+display_adf_result(adf_diff_Dinflation, "Differenced Danish Inflation")
+
+adf_diff_Dinterest <- adf.test(diff_Dinterest, alternative = "stationary")
+display_adf_result(adf_diff_Dinterest, "Differenced Danish Interest Rate")
+
+adf_diff_Dunemployment <- adf.test(diff_Dunemployment, alternative = "stationary")
+display_adf_result(adf_diff_Dunemployment, "Differenced Danish Unemployment")
+
+# Sweden
+adf_diff_SBNP <- adf.test(diff_SBNP, alternative = "stationary")
+display_adf_result(adf_diff_SBNP, "Differenced Swedish GDP (BNP)")
+
+adf_diff_Sinflation <- adf.test(diff_Sinflation, alternative = "stationary")
+display_adf_result(adf_diff_Sinflation, "Differenced Swedish Inflation")
+
+adf_diff_Sinterest <- adf.test(diff_Sinterest, alternative = "stationary")
+display_adf_result(adf_diff_Sinterest, "Differenced Swedish Interest Rate")
+
+adf_diff_Sunemployment <- adf.test(diff_Sunemployment, alternative = "stationary")
+display_adf_result(adf_diff_Sunemployment, "Differenced Swedish Unemployment")
+
+# OMXC20 and OMXS30
+adf_diff_OMXC20 <- adf.test(diff_OMXC20, alternative = "stationary")
+display_adf_result(adf_diff_OMXC20, "Differenced OMXC20 Close Prices")
+
+adf_diff_OMXS30 <- adf.test(diff_OMXS30, alternative = "stationary")
+display_adf_result(adf_diff_OMXS30, "Differenced OMXS30 Close Prices")
+
+
+```
+
+## 2nd & 3rd order diff
+
+```{r}
+diff2_Dinterest <- diff(DanishInterestReate$InterestRate, differences = 2)
+diff2_Sunemployment <- diff(SWEUnemployment$Unemployment_Rate, differences = 2)
+
+adf_diff2_Dinterest <- adf.test(diff2_Dinterest, alternative = "stationary")
+display_adf_result(adf_diff2_Dinterest, "2nd order Differenced DanishInterestRate")
+
+adf_diff2_Sunemployment <- adf.test(diff2_Sunemployment, alternative = "stationary")
+display_adf_result(adf_diff2_Sunemployment, "2nd order Differenced Swedish unemployment")
 
 
 ```
 ```{r}
-anyNA(OMXC20$OMXC20_Close)
-anyNA(OMXS30$OMXS30_Close)
-
-any(is.infinite(OMXC20$OMXC20_Close))
-any(is.infinite(OMXS30$OMXS30_Close))
-
-
-str(OMXC20)
-str(OMXS30)
-
-
+diff3_Sunemployment <- diff(SWEUnemployment$Unemployment_Rate, differences = 3)
+adf_diff3_Sunemployment <- adf.test(diff3_Sunemployment, alternative = "stationary")
+display_adf_result(adf_diff3_Sunemployment, "3nd order Differenced Swedish unemployment")
 ```
-
-
-
-
+# plots
 
 ```{r}
-adf_test_OMXC20 <- adf.test(OMXC20$OMXC20_Close, alternative = "stationary")
-adf_test_OMXS30 <- adf.test(OMXS30$OMXS30_Close, alternative = "stationary")
+library(ggplot2)
+library(gridExtra)
+
+# GDP Plot
+p1 <- ggplot(SwedenData, aes(x = Date, y = GDP)) +
+  geom_line(color = "blue") +
+  labs(title = "Sweden GDP", x = "Year", y = "GDP") +
+  theme_minimal()
+
+# Inflation Plot
+p2 <- ggplot(SwedenData, aes(x = Date, y = Inflation)) +
+  geom_line(color = "red") +
+  labs(title = "Sweden Inflation", x = "Year", y = "Inflation Rate (%)") +
+  theme_minimal()
+
+# Unemployment Plot
+p3 <- ggplot(SwedenData, aes(x = Date, y = Unemployment)) +
+  geom_line(color = "green") +
+  labs(title = "Sweden Unemployment", x = "Year", y = "Unemployment Rate (%)") +
+  theme_minimal()
+
+# Interest Rate Plot
+p4 <- ggplot(SwedenData, aes(x = Date, y = InterestRate)) +
+  geom_line(color = "purple") +
+  labs(title = "Sweden Interest Rate", x = "Year", y = "Interest Rate (%)") +
+  theme_minimal()
+
+grid.arrange(p1, p2, p3, p4, ncol = 2)
+
+
 
 ```
 
