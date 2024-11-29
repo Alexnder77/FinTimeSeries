@@ -299,7 +299,6 @@ display_adf_result(adf_diff_OMXS30, "Differenced OMXS30 Close Prices")
 ```
 
 ## 2nd & 3rd order diff
-
 ```{r}
 diff2_Dinterest <- diff(DanishInterestReate$InterestRate, differences = 2)
 diff2_Sunemployment <- diff(SWEUnemployment$Unemployment_Rate, differences = 2)
@@ -312,160 +311,14 @@ display_adf_result(adf_diff2_Sunemployment, "2nd order Differenced Swedish unemp
 
 
 ```
+
 ```{r}
 diff3_Sunemployment <- diff(SWEUnemployment$Unemployment_Rate, differences = 3)
 adf_diff3_Sunemployment <- adf.test(diff3_Sunemployment, alternative = "stationary")
 display_adf_result(adf_diff3_Sunemployment, "3nd order Differenced Swedish unemployment")
 ```
 
-
-#Model Selection
-library(forecast)
-adf.test(adf_diff_DBNP)
-
-# Plot ACF and PACF for differenced variables
-#for danish GDP
-acf(diff_DBNP, main = "ACF for Differenced Danish GDP (BNP)")
-pacf(diff_DBNP, main = "PACF for Differenced Danish GDP (BNP)")
-
-#for danish inflation
-acf(diff_Dinflation, main = "ACF for Differenced Danish Inflation")
-pacf(diff_Dinflation, main = "PACF for Differenced Danish Inflation")
-
-#for danish interest rate
-acf(diff_Dinterest, main = "ACF for Differenced Danish Interest Rate")
-pacf(diff_Dinterest, main = "PACF for Differenced Danish Interest Rate")
-
-#for danish unemployment
-acf(diff_Dunemployment, main = "ACF for Differenced Danish Unemployment Rate")
-pacf(diff_Dunemployment, main = "PACF for Differenced Danish Unemployment Rate")
-
-#for swedish GDP
-acf(diff_SBNP, main = "ACF for Differenced Swedish GDP (BNP)")
-pacf(diff_SBNP, main = "PACF for Differenced Swedish GDP (BNP)")
-
-#for swedish inflation
-acf(diff_Sinterest, main = "ACF for Differenced Swedish Interest Rate")
-pacf(diff_Sinterest, main = "PACF for Differenced Swedish Interest Rate")
-
-#for swedish interest rate
-acf(diff_Sinterest, main = "ACF for Differenced Swedish Interest Rate")
-pacf(diff_Sinterest, main = "PACF for Differenced Swedish Interest Rate")
-
-#for swedish unemployment
-acf(diff_Sunemployment, main = "ACF for Differenced Swedish Unemployment Rate")
-pacf(diff_Sunemployment, main = "PACF for Differenced Swedish Unemployment Rate")
-
-
-
-arima_OMXC20 <- auto.arima(OMXC20$Close.Last)
-arima_OMXS30 <- auto.arima(OMXS30$Close.Last)
-
-#Automatic ARIMA Model Selection and fit the ARIMA models
-#danish gdp
-arima_DBNP <- auto.arima(DanishBNP$BNP)
-summary(arima_DBNP)
-fit_arima_DBNP <- arima(DanishBNP$BNP, order = c(1, 1, 0))
-summary(fit_arima_DBNP)
-
-#danish inflation
-arima_Dinflation <- auto.arima(DanishInflation$Inflation)
-summary(arima_Dinflation)
-fit_arima_Dinflation <- arima(DanishInflation$Inflation, order = c(0, 1, 0))
-summary(fit_arima_Dinflation)
-
-#danish interest rate
-arima_Dinterest <- arima(DanishInterestReate$InterestRate)
-summary(arima_Dinterest)
-fit_arima_Dinterest <- arima(DanishInterestReate$InterestRate, order = c(0, 1, 0))
-summary(fit_arima_Dinterest)
-
-#danish unemployment
-arima_Dunemployment <- auto.arima(DanishUnemployment$`Procent af arbejdsstyrken`)
-summary(arima_Dunemployment)
-fit_arima_Dunemployment <- arima(DanishUnemployment$`Procent af arbejdsstyrken`, order = c(0, 1, 1))
-summary(fit_arima_Dunemployment)
-
-#swedish GDP
-arima_SBNP <- auto.arima(SWEBNP$BNP)
-summary(arima_SBNP)
-fit_arima_SBNP <- arima(SWEBNP$BNP, order = c(3, 1, 0))
-summary(fit_arima_SBNP)
-
-#Swedish inflation
-arima_Sinflation <- auto.arima(SWEInflation$Inflation)
-summary(arima_Sinflation)
-fit_arima_Sinflation <- arima(SWEInflation$Inflation, order = c(0, 1, 0))
-summary(fit_arima_Sinflation)
-
-#swedish interest rate
-arima_Sinterest <- auto.arima(SWEInterestReate$Interest_Reate)
-summary(arima_Sinterest)
-fit_arima_Sinterest <- arima(SWEInterestReate$Interest_Reate, order = c(2, 1, 3))
-summary(fit_arima_Sinterest)
-
-#swedish unemployment
-arima_Sunemployment <- auto.arima(SWEUnemployment$Unemployment_Rate)
-summary(arima_Sunemployment)
-fit_arima_Sunemployment <- arima(SWEUnemployment$Unemployment_Rate, order = c(2, 0, 0))
-summary(fit_arima_Sunemployment)
-
-#Diagnostic checking
-#for the danish
-checkresiduals(fit_arima_DBNP)
-Box.test(residuals(fit_arima_DBNP), lag = 10, type = "Ljung-Box")
-
-checkresiduals(fit_arima_Dinflation)
-Box.test(residuals(fit_arima_Dinflation), lag = 10, type = "Ljung-Box")
-
-checkresiduals(fit_arima_Dinterest)
-Box.test(residuals(fit_arima_Dinterest), lag = 10, type = "Ljung-Box")
-
-checkresiduals(fit_arima_Dunemployment)
-Box.test(residuals(fit_arima_Dunemployment), lag = 10, type = "Ljung-Box")
-
-#for the swedish
-checkresiduals(fit_arima_SBNP)
-Box.test(residuals(fit_arima_SBNP), lag = 10, type = "Ljung-Box")
-
-checkresiduals(fit_arima_Sinflation)
-Box.test(residuals(fit_arima_Sinflation), lag = 10, type = "Ljung-Box")
-
-checkresiduals(fit_arima_Sinterest)
-Box.test(residuals(fit_arima_Sinterest), lag = 10, type = "Ljung-Box")
-
-checkresiduals(fit_arima_Sunemployment)
-Box.test(residuals(fit_arima_Sunemployment), lag = 10, type = "Ljung-Box")
-
-#forecast where we use a 12-period forecast
-#for the danish
-forecast_DBNP <- forecast(fit_arima_DBNP, h = 12)
-plot(forecast_DBNP)
-
-forecast_Dinflation <- forecast(fit_arima_Dinflation, h = 12)
-plot(forecast_Dinflation)
-
-forecast_Dinterest <- forecast(fit_arima_Dinterest, h = 12)
-plot(forecast_Dinterest)
-
-forecast_Dunemployment <- forecast(fit_arima_Dunemployment, h = 12)
-plot(forecast_Dunemployment)
-
-#for the swedish
-forecast_SBNP <- forecast(fit_arima_SBNP, h = 12)
-plot(forecast_SBNP)
-
-forecast_Sinflation <- forecast(fit_arima_Sinflation, h = 12)
-plot(forecast_Sinflation)
-
-forecast_Sinterest <- forecast(fit_arima_Sinterest, h = 12)
-plot(forecast_Sinterest)
-
-forecast_Sunemployment <- forecast(fit_arima_Sunemployment, h = 12)
-plot(forecast_Sunemployment)
-
-
-# plots
+## plots
 ```{r}
 library(dplyr)
 library(zoo)
@@ -544,6 +397,7 @@ SwedenData <- full_join(SWEBNP, SWEInflation, by = "Date") %>%
 ```{r}
 library(ggplot2)
 library(gridExtra)
+library(grid)
 
 # Create a custom theme for all plots
 custom_theme <- theme_minimal() +
@@ -716,15 +570,158 @@ grid.arrange(
     gp = gpar(fontsize = 14, fontface = "bold")
   )
 )
-
-
-
-
-
-
-
-
 ```
+
+#Model Selection
+```{r}
+library(forecast)
+
+# Plot ACF and PACF for differenced variables
+#for danish GDP
+acf(diff_DBNP, main = "ACF for Differenced Danish GDP (BNP)")
+pacf(diff_DBNP, main = "PACF for Differenced Danish GDP (BNP)")
+
+#for danish inflation
+acf(diff_Dinflation, main = "ACF for Differenced Danish Inflation")
+pacf(diff_Dinflation, main = "PACF for Differenced Danish Inflation")
+
+#for danish interest rate
+acf(diff_Dinterest, main = "ACF for Differenced Danish Interest Rate")
+pacf(diff_Dinterest, main = "PACF for Differenced Danish Interest Rate")
+
+#for danish unemployment
+acf(diff_Dunemployment, main = "ACF for Differenced Danish Unemployment Rate")
+pacf(diff_Dunemployment, main = "PACF for Differenced Danish Unemployment Rate")
+
+#for swedish GDP
+acf(diff_SBNP, main = "ACF for Differenced Swedish GDP (BNP)")
+pacf(diff_SBNP, main = "PACF for Differenced Swedish GDP (BNP)")
+
+#for swedish inflation
+acf(diff_Sinterest, main = "ACF for Differenced Swedish Interest Rate")
+pacf(diff_Sinterest, main = "PACF for Differenced Swedish Interest Rate")
+
+#for swedish interest rate
+acf(diff_Sinterest, main = "ACF for Differenced Swedish Interest Rate")
+pacf(diff_Sinterest, main = "PACF for Differenced Swedish Interest Rate")
+
+#for swedish unemployment
+acf(diff_Sunemployment, main = "ACF for Differenced Swedish Unemployment Rate")
+pacf(diff_Sunemployment, main = "PACF for Differenced Swedish Unemployment Rate")
+
+
+
+arima_OMXC20 <- auto.arima(OMXC20$Close.Last)
+arima_OMXS30 <- auto.arima(OMXS30$Close.Last)
+
+#Automatic ARIMA Model Selection and fit the ARIMA models
+#danish gdp
+arima_DBNP <- auto.arima(DanishBNP$BNP)
+summary(arima_DBNP)
+fit_arima_DBNP <- arima(DanishBNP$BNP, order = c(1, 1, 0))
+summary(fit_arima_DBNP)
+
+#danish inflation
+arima_Dinflation <- auto.arima(DanishInflation$Inflation)
+summary(arima_Dinflation)
+fit_arima_Dinflation <- arima(DanishInflation$Inflation, order = c(0, 1, 0))
+summary(fit_arima_Dinflation)
+
+#danish interest rate
+arima_Dinterest <- arima(DanishInterestReate$InterestRate)
+summary(arima_Dinterest)
+fit_arima_Dinterest <- arima(DanishInterestReate$InterestRate, order = c(0, 1, 0))
+summary(fit_arima_Dinterest)
+
+#danish unemployment
+arima_Dunemployment <- auto.arima(DanishUnemployment$`Procent af arbejdsstyrken`)
+summary(arima_Dunemployment)
+fit_arima_Dunemployment <- arima(DanishUnemployment$`Procent af arbejdsstyrken`, order = c(0, 1, 1))
+summary(fit_arima_Dunemployment)
+
+#swedish GDP
+arima_SBNP <- auto.arima(SWEBNP$BNP)
+summary(arima_SBNP)
+fit_arima_SBNP <- arima(SWEBNP$BNP, order = c(3, 1, 0))
+summary(fit_arima_SBNP)
+
+#Swedish inflation
+arima_Sinflation <- auto.arima(SWEInflation$Inflation)
+summary(arima_Sinflation)
+fit_arima_Sinflation <- arima(SWEInflation$Inflation, order = c(0, 1, 0))
+summary(fit_arima_Sinflation)
+
+#swedish interest rate
+arima_Sinterest <- auto.arima(SWEInterestReate$Interest_Reate)
+summary(arima_Sinterest)
+fit_arima_Sinterest <- arima(SWEInterestReate$Interest_Reate, order = c(2, 1, 3))
+summary(fit_arima_Sinterest)
+
+#swedish unemployment
+arima_Sunemployment <- auto.arima(SWEUnemployment$Unemployment_Rate)
+summary(arima_Sunemployment)
+fit_arima_Sunemployment <- arima(SWEUnemployment$Unemployment_Rate, order = c(2, 0, 0))
+summary(fit_arima_Sunemployment)
+
+#Diagnostic checking
+#for the danish
+checkresiduals(fit_arima_DBNP)
+Box.test(residuals(fit_arima_DBNP), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Dinflation)
+Box.test(residuals(fit_arima_Dinflation), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Dinterest)
+Box.test(residuals(fit_arima_Dinterest), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Dunemployment)
+Box.test(residuals(fit_arima_Dunemployment), lag = 10, type = "Ljung-Box")
+
+#for the swedish
+checkresiduals(fit_arima_SBNP)
+Box.test(residuals(fit_arima_SBNP), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Sinflation)
+Box.test(residuals(fit_arima_Sinflation), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Sinterest)
+Box.test(residuals(fit_arima_Sinterest), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Sunemployment)
+Box.test(residuals(fit_arima_Sunemployment), lag = 10, type = "Ljung-Box")
+```
+
+## forecast where we use a 12-period forecast
+
+```{r}
+#for the danish
+forecast_DBNP <- forecast(fit_arima_DBNP, h = 12)
+plot(forecast_DBNP)
+
+forecast_Dinflation <- forecast(fit_arima_Dinflation, h = 12)
+plot(forecast_Dinflation)
+
+forecast_Dinterest <- forecast(fit_arima_Dinterest, h = 12)
+plot(forecast_Dinterest)
+
+forecast_Dunemployment <- forecast(fit_arima_Dunemployment, h = 12)
+plot(forecast_Dunemployment)
+
+#for the swedish
+forecast_SBNP <- forecast(fit_arima_SBNP, h = 12)
+plot(forecast_SBNP)
+
+forecast_Sinflation <- forecast(fit_arima_Sinflation, h = 12)
+plot(forecast_Sinflation)
+
+forecast_Sinterest <- forecast(fit_arima_Sinterest, h = 12)
+plot(forecast_Sinterest)
+
+forecast_Sunemployment <- forecast(fit_arima_Sunemployment, h = 12)
+plot(forecast_Sunemployment)
+```
+
+
 
 
 
