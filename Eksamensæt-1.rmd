@@ -573,10 +573,10 @@ grid.arrange(
 ```
 
 #Model Selection
+## Plot ACF and PACF for differenced variables
 ```{r}
 library(forecast)
 
-# Plot ACF and PACF for differenced variables
 #for danish GDP
 acf(diff_DBNP, main = "ACF for Differenced Danish GDP (BNP)")
 pacf(diff_DBNP, main = "PACF for Differenced Danish GDP (BNP)")
@@ -609,11 +609,13 @@ pacf(diff_Sinterest, main = "PACF for Differenced Swedish Interest Rate")
 acf(diff_Sunemployment, main = "ACF for Differenced Swedish Unemployment Rate")
 pacf(diff_Sunemployment, main = "PACF for Differenced Swedish Unemployment Rate")
 
+```
 
-
+## Arima
 arima_OMXC20 <- auto.arima(OMXC20$Close.Last)
 arima_OMXS30 <- auto.arima(OMXS30$Close.Last)
 
+```{r}
 #Automatic ARIMA Model Selection and fit the ARIMA models
 #danish gdp
 arima_DBNP <- auto.arima(DanishBNP$BNP)
@@ -695,7 +697,7 @@ Box.test(residuals(fit_arima_Sunemployment), lag = 10, type = "Ljung-Box")
 
 ```{r}
 #for the danish
-forecast_DBNP <- forecast(fit_arima_DBNP, h = 12)
+forecast_DBNP <- forecast(fit_arima_DBNP, h = 12, )
 plot(forecast_DBNP)
 
 forecast_Dinflation <- forecast(fit_arima_Dinflation, h = 12)
