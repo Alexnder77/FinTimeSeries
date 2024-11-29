@@ -410,6 +410,60 @@ summary(arima_Sunemployment)
 fit_arima_Sunemployment <- arima(SWEUnemployment$Unemployment_Rate, order = c(2, 0, 0))
 summary(fit_arima_Sunemployment)
 
+#Diagnostic checking
+#for the danish
+checkresiduals(fit_arima_DBNP)
+Box.test(residuals(fit_arima_DBNP), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Dinflation)
+Box.test(residuals(fit_arima_Dinflation), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Dinterest)
+Box.test(residuals(fit_arima_Dinterest), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Dunemployment)
+Box.test(residuals(fit_arima_Dunemployment), lag = 10, type = "Ljung-Box")
+
+#for the swedish
+checkresiduals(fit_arima_SBNP)
+Box.test(residuals(fit_arima_SBNP), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Sinflation)
+Box.test(residuals(fit_arima_Sinflation), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Sinterest)
+Box.test(residuals(fit_arima_Sinterest), lag = 10, type = "Ljung-Box")
+
+checkresiduals(fit_arima_Sunemployment)
+Box.test(residuals(fit_arima_Sunemployment), lag = 10, type = "Ljung-Box")
+
+#forecast where we use a 12-period forecast
+#for the danish
+forecast_DBNP <- forecast(fit_arima_DBNP, h = 12)
+plot(forecast_DBNP)
+
+forecast_Dinflation <- forecast(fit_arima_Dinflation, h = 12)
+plot(forecast_Dinflation)
+
+forecast_Dinterest <- forecast(fit_arima_Dinterest, h = 12)
+plot(forecast_Dinterest)
+
+forecast_Dunemployment <- forecast(fit_arima_Dunemployment, h = 12)
+plot(forecast_Dunemployment)
+
+#for the swedish
+forecast_SBNP <- forecast(fit_arima_SBNP, h = 12)
+plot(forecast_SBNP)
+
+forecast_Sinflation <- forecast(fit_arima_Sinflation, h = 12)
+plot(forecast_Sinflation)
+
+forecast_Sinterest <- forecast(fit_arima_Sinterest, h = 12)
+plot(forecast_Sinterest)
+
+forecast_Sunemployment <- forecast(fit_arima_Sunemployment, h = 12)
+plot(forecast_Sunemployment)
+
 
 # plots
 
