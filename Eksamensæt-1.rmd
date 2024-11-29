@@ -466,36 +466,261 @@ plot(forecast_Sunemployment)
 
 
 # plots
+```{r}
+library(dplyr)
+library(zoo)
+
+# Transform Denmark Data with Differencing
+DanishBNP <- DanishBNP %>%
+  mutate(
+    Date = as.Date(as.yearqtr(YearQtr, format = "%Y Q%q")),
+    BNP_Diff = c(NA, diff(BNP)) # Differenced GDP
+  )
+
+DanishInflation <- DanishInflation %>%
+  mutate(
+    Date = as.Date(paste0(year, "-01-01")),
+    Inflation_Diff = c(NA, diff(Inflation)) # Differenced Inflation
+  )
+
+DanishInterestReate <- DanishInterestReate %>%
+  mutate(
+    Date = as.Date(paste0(year, "-01-01")),
+    InterestRate_Diff2 = c(NA, NA, diff(diff(InterestRate))) # Differenced Interest Rate
+  )
+
+DanishUnemployment <- DanishUnemployment %>%
+  mutate(
+    Date = as.Date(paste0(Year, "-01-01")),
+    Unemployment_Diff = c(NA, diff(`Procent af arbejdsstyrken`)) # Differenced Unemployment Rate
+  )
+
+# Transform Sweden Data with Differencing
+SWEBNP <- SWEBNP %>%
+  mutate(
+    Date = as.Date(as.yearqtr(YearQtr, format = "%Y Q%q")),
+    BNP_Diff = c(NA, diff(BNP)) # Differenced GDP
+  )
+
+SWEInflation <- SWEInflation %>%
+  mutate(
+    Date = as.Date(paste0(Year, "-01-01")),
+    Inflation_Diff = c(NA, diff(Inflation)) # Differenced Inflation
+  )
+
+SWEInterestReate <- SWEInterestReate %>%
+  mutate(
+    Date = as.Date(paste0(Year, "-01-01")),
+    InterestRate_Diff = c(NA, diff(Interest_Reate)) # Differenced Interest Rate
+  )
+
+SWEUnemployment <- SWEUnemployment %>%
+  mutate(
+    Date = as.Date(paste0(Year, "-01-01")),
+    Unemployment_Diff3 = c(NA, NA, NA, diff(diff(diff(Unemployment_Rate)))) # Differenced Unemployment Rate
+  )
+
+# Convert OMXC20 and OMXS30 Date columns
+OMXC20 <- OMXC20 %>%
+  mutate(Date = as.Date(Date, format = "%m/%d/%Y"))
+
+OMXS30 <- OMXS30 %>%
+  mutate(Date = as.Date(Date, format = "%m/%d/%Y"))
+
+```
+
+```{r}
+# Merge Danish datasets
+DanishData <- full_join(DanishBNP, DanishInflation, by = "Date") %>%
+  full_join(DanishInterestReate, by = "Date") %>%
+  full_join(DanishUnemployment, by = "Date")
+
+# Merge Swedish datasets
+SwedenData <- full_join(SWEBNP, SWEInflation, by = "Date") %>%
+  full_join(SWEInterestReate, by = "Date") %>%
+  full_join(SWEUnemployment, by = "Date")
+```
 
 ```{r}
 library(ggplot2)
 library(gridExtra)
 
-# GDP Plot
-p1 <- ggplot(SwedenData, aes(x = Date, y = GDP)) +
+# Create a custom theme for all plots
+custom_theme <- theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12),
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 6)
+  )
+
+# Swedish Variables Plot
+p1_swe <- ggplot(SWEBNP, aes(x = Date, y = BNP)) +
   geom_line(color = "blue") +
   labs(title = "Sweden GDP", x = "Year", y = "GDP") +
-  theme_minimal()
+  custom_theme
 
-# Inflation Plot
-p2 <- ggplot(SwedenData, aes(x = Date, y = Inflation)) +
+p2_swe <- ggplot(SWEInflation, aes(x = Date, y = Inflation)) +
   geom_line(color = "red") +
   labs(title = "Sweden Inflation", x = "Year", y = "Inflation Rate (%)") +
-  theme_minimal()
+  custom_theme
 
-# Unemployment Plot
-p3 <- ggplot(SwedenData, aes(x = Date, y = Unemployment)) +
+p3_swe <- ggplot(SWEUnemployment, aes(x = Date, y = Unemployment_Rate)) +
   geom_line(color = "green") +
   labs(title = "Sweden Unemployment", x = "Year", y = "Unemployment Rate (%)") +
-  theme_minimal()
+  custom_theme
 
-# Interest Rate Plot
-p4 <- ggplot(SwedenData, aes(x = Date, y = InterestRate)) +
+p4_swe <- ggplot(SWEInterestReate, aes(x = Date, y = Interest_Reate)) +
   geom_line(color = "purple") +
   labs(title = "Sweden Interest Rate", x = "Year", y = "Interest Rate (%)") +
-  theme_minimal()
+  custom_theme
 
-grid.arrange(p1, p2, p3, p4, ncol = 2)
+# Danish Variables Plot
+p1_dan <- ggplot(DanishBNP, aes(x = Date, y = BNP)) +
+  geom_line(color = "blue") +
+  labs(title = "GDP", x = "Year", y = "GDP") +
+  custom_theme
+
+p2_dan <- ggplot(DanishInflation, aes(x = Date, y = Inflation)) +
+  geom_line(color = "red") +
+  labs(title = "Inflation", x = "Year", y = "Inflation Rate (%)") +
+  custom_theme
+
+p3_dan <- ggplot(DanishUnemployment, aes(x = Date, y = DanishUnemployment$`Procent af arbejdsstyrken`)) +
+  geom_line(color = "green") +
+  labs(title = "Unemployment", x = "Year", y = "Unemployment Rate (%)") +
+  custom_theme
+
+p4_dan <- ggplot(DanishInterestReate, aes(x = Date, y = InterestRate)) +
+  geom_line(color = "purple") +
+  labs(title = "Interest Rate", x = "Year", y = "Interest Rate (%)") +
+  custom_theme
+
+# Arrange Swedish and Danish Plots
+grid.arrange(p1_swe, p2_swe, p3_swe, p4_swe, ncol = 2,
+top = textGrob(
+    "Sweden Macro Economic Variables",
+    gp = gpar(fontsize = 14, fontface = "bold")
+  ))
+grid.arrange(p1_dan, p2_dan, p3_dan, p4_dan, ncol = 2,
+top = textGrob(
+    "Denmark Macro Economic Variables",
+    gp = gpar(fontsize = 14, fontface = "bold")
+  ))
+
+```
+
+
+
+```{r}
+
+library(ggplot2)
+library(gridExtra)
+library(grid)
+
+# Create a custom theme for all plots
+custom_theme <- theme_minimal() +
+  theme(
+    plot.title = element_text(size = 12),
+    axis.title = element_text(size = 6),
+    axis.text = element_text(size = 6)
+  )
+
+# Swedish Variables Plot with Adjusted Title Font Sizes
+p1_swe <- ggplot(SWEBNP, aes(x = Date, y = BNP_Diff)) +
+  geom_line(color = "blue") +
+  labs(
+    title = "Sweden GDP (First Difference)",
+    x = "Year",
+    y = "Differenced GDP"
+  ) +
+  custom_theme
+
+p2_swe <- ggplot(SWEInflation, aes(x = Date, y = Inflation_Diff)) +
+  geom_line(color = "red") +
+  labs(
+    title = "Sweden Inflation (First Difference)",
+    x = "Year",
+    y = "Differenced Inflation Rate (%)"
+  ) +
+  custom_theme
+
+p3_swe <- ggplot(SWEUnemployment, aes(x = Date, y = Unemployment_Diff3)) +
+  geom_line(color = "green") +
+  labs(
+    title = "Sweden Unemployment Rate (Third Difference)",
+    x = "Year",
+    y = "Third Differenced Unemployment Rate (%)"
+  ) +
+  custom_theme
+
+p4_swe <- ggplot(SWEInterestReate, aes(x = Date, y = InterestRate_Diff)) +
+  geom_line(color = "purple") +
+  labs(
+    title = "Sweden Interest Rate (First Difference)",
+    x = "Year",
+    y = "Differenced Interest Rate (%)"
+  ) +
+  custom_theme
+
+# Arrange Swedish Plots with Main Title
+grid.arrange(
+  p1_swe, p2_swe, p3_swe, p4_swe, ncol = 2,
+  top = textGrob(
+    "Sweden Stationary Macro Economic Variables (Differenced)",
+    gp = gpar(fontsize = 14, fontface = "bold")
+  )
+)
+
+# Danish Variables Plot with Adjusted Title Font Sizes
+p1_dan <- ggplot(DanishBNP, aes(x = Date, y = BNP_Diff)) +
+  geom_line(color = "blue") +
+  labs(
+    title = "Denmark GDP (First Difference)",
+    x = "Year",
+    y = "Differenced GDP"
+  ) +
+  custom_theme
+
+p2_dan <- ggplot(DanishInflation, aes(x = Date, y = Inflation_Diff)) +
+  geom_line(color = "red") +
+  labs(
+    title = "Denmark Inflation (First Difference)",
+    x = "Year",
+    y = "Differenced Inflation Rate (%)"
+  ) +
+  custom_theme
+
+p3_dan <- ggplot(DanishUnemployment, aes(x = Date, y = Unemployment_Diff)) +
+  geom_line(color = "green") +
+  labs(
+    title = "Denmark Unemployment Rate (First Difference)",
+    x = "Year",
+    y = "Differenced Unemployment Rate (%)"
+  ) +
+  custom_theme
+
+p4_dan <- ggplot(DanishInterestReate, aes(x = Date, y = InterestRate_Diff2)) +
+  geom_line(color = "purple") +
+  labs(
+    title = "Denmark Interest Rate (Second Difference)",
+    x = "Year",
+    y = "Second Differenced Interest Rate (%)"
+  ) +
+  custom_theme
+
+# Arrange Danish Plots with Main Title
+grid.arrange(
+  p1_dan, p2_dan, p3_dan, p4_dan, ncol = 2,
+  top = textGrob(
+    "Denmark Stationary Macro Economic Variables (Differenced)",
+    gp = gpar(fontsize = 14, fontface = "bold")
+  )
+)
+
+
+
+
+
 
 
 
