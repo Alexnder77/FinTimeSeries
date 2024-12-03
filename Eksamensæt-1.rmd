@@ -52,11 +52,9 @@ OMXS30 <- OMXS30 %>%
 DanishInflation$Inflation <- as.numeric(DanishInflation$Inflation)
 DanishInterestReate$Interest_Rate <- as.numeric(DanishInterestReate$Interest_Rate)
 DanishUnemployment$Unemployment_Rate <- as.numeric(DanishUnemployment$Unemployment_Rate)
-
 SWEInflation$Inflation <- as.numeric(SWEInflation$Inflation)
 SWEInterestRate$Interest_Rate <- as.numeric(SWEInterestRate$Interest_Rate)
 SWEUnemployment$Unemployment_Rate <- as.numeric(SWEUnemployment$Unemployment_Rate)
-
 OMXC20$Close.Last <- as.numeric(OMXC20$Close.Last)
 OMXS30$Close.Last <- as.numeric(OMXS30$Close.Last)
 
@@ -68,9 +66,6 @@ OMXS30$Close.Last <- as.numeric(OMXS30$Close.Last)
 library(dplyr)
 library(zoo)
 
-# Ensure Close.Last is numeric
-OMXC20$Close.Last <- as.numeric(OMXC20$Close.Last)
-OMXS30$Close.Last <- as.numeric(OMXS30$Close.Last)
 
 # Remove rows with NA values
 OMXC20 <- na.omit(OMXC20)
@@ -245,7 +240,7 @@ DanishData <- DanishBNP %>%
   left_join(DanishInflation, by = "Date") %>%
   left_join(DanishInterestReate, by = "Date") %>%
   left_join(DanishUnemployment, by = "Date") %>%
-  left_join(quarterly_OMXC20, by = "Date") %>%
+  left_join(OMXC20, by = "Date") %>%
   mutate(
     Date = as.Date(as.yearqtr(Date, format = "%Y Q%q")),
     BNP_Diff = c(NA, diff(BNP)),                # Differenced GDP
@@ -259,7 +254,7 @@ SwedenData <- SWEBNP %>%
   left_join(SWEInflation, by = "Date") %>%
   left_join(SWEInterestRate, by = "Date") %>%
   left_join(SWEUnemployment, by = "Date") %>%
-  left_join(quarterly_OMXS30, by = "Date") %>%
+  left_join(OMXS30, by = "Date") %>%
   mutate(
     Date = as.Date(as.yearqtr(Date, format = "%Y Q%q")),
     BNP_Diff = c(NA, diff(BNP)),                # Differenced GDP
