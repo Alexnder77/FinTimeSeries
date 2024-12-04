@@ -726,15 +726,184 @@ denmark_irf <- irf(denmark_var, n.ahead = 8)
 sweden_irf <- irf(sweden_var, n.ahead = 8)
 
 # Plot IRFs
-# par(mfrow=c(2,1))
-# plot(denmark_irf)
-# plot(sweden_irf)
+par(mfrow=c(2,1))
+plot(denmark_irf)
+plot(sweden_irf)
 
 # Print summaries
 summary(denmark_var)
 summary(sweden_var)
-# ```
+# 
+```
+```{r}
+# Load required packages if not already loaded
+library(vars)
 
+# Generate forecasts (12 periods ahead)
+denmark_forecast <- predict(denmark_var, n.ahead = 12, ci = 0.95)
+sweden_forecast <- predict(sweden_var, n.ahead = 12, ci = 0.95)
 
+# Plot forecasts
+par(mfrow=c(1,5))
+plot(denmark_forecast)
+plot(sweden_forecast)
 
+# Create forecast summary tables
+denmark_forecast_df <- data.frame(
+  Period = 1:12,
+  BNP = denmark_forecast$fcst$BNP_Diff[,1],
+  BNP_Lower = denmark_forecast$fcst$BNP_Diff[,2],
+  BNP_Upper = denmark_forecast$fcst$BNP_Diff[,3],
+  Inflation = denmark_forecast$fcst$Inflation_Diff[,1],
+  Interest = denmark_forecast$fcst$InterestRate_Diff[,1],
+  Unemployment = denmark_forecast$fcst$Unemployment_Diff[,1],
+  OMXC20 = denmark_forecast$fcst$OMXC20_Diff[,1]
+)
+
+sweden_forecast_df <- data.frame(
+  Period = 1:12,
+  BNP = sweden_forecast$fcst$BNP_Diff[,1],
+  BNP_Lower = sweden_forecast$fcst$BNP_Diff[,2],
+  BNP_Upper = sweden_forecast$fcst$BNP_Diff[,3],
+  Inflation = sweden_forecast$fcst$Inflation_Diff[,1],
+  Interest = sweden_forecast$fcst$InterestRate_Diff[,1],
+  Unemployment = sweden_forecast$fcst$Unemployment_Diff[,1],
+  OMXS30 = sweden_forecast$fcst$OMXS30_Diff[,1]
+)
+
+# Print forecast summaries
+print("Denmark Forecasts:")
+print(denmark_forecast_df)
+print("\nSweden Forecasts:")
+print(sweden_forecast_df)
+```
+
+```{r}
+# Load required packages if not already loaded
+library(vars)
+
+# Generate forecasts (12 periods ahead)
+denmark_forecast <- predict(denmark_var, n.ahead = 12, ci = 0.95)
+sweden_forecast <- predict(sweden_var, n.ahead = 12, ci = 0.95)
+
+# Set larger plot size and layout
+par(mfrow=c(2,3), fig=c(0,1,0,1), mar=c(4,4,2,1), cex=1.2)
+# Make window bigger
+options(repr.plot.width=80, repr.plot.height=60)
+
+# Plot forecasts
+plot(denmark_forecast)
+plot(sweden_forecast)
+
+# Create forecast summary tables
+denmark_forecast_df <- data.frame(
+  Period = 1:12,
+  BNP = denmark_forecast$fcst$BNP_Diff[,1],
+  BNP_Lower = denmark_forecast$fcst$BNP_Diff[,2],
+  BNP_Upper = denmark_forecast$fcst$BNP_Diff[,3],
+  Inflation = denmark_forecast$fcst$Inflation_Diff[,1],
+  Interest = denmark_forecast$fcst$InterestRate_Diff[,1],
+  Unemployment = denmark_forecast$fcst$Unemployment_Diff[,1],
+  OMXC20 = denmark_forecast$fcst$OMXC20_Diff[,1]
+)
+
+sweden_forecast_df <- data.frame(
+  Period = 1:12,
+  BNP = sweden_forecast$fcst$BNP_Diff[,1],
+  BNP_Lower = sweden_forecast$fcst$BNP_Diff[,2],
+  BNP_Upper = sweden_forecast$fcst$BNP_Diff[,3],
+  Inflation = sweden_forecast$fcst$Inflation_Diff[,1],
+  Interest = sweden_forecast$fcst$InterestRate_Diff[,1],
+  Unemployment = sweden_forecast$fcst$Unemployment_Diff[,1],
+  OMXS30 = sweden_forecast$fcst$OMXS30_Diff[,1]
+)
+
+# Print forecast summaries
+print("Denmark Forecasts:")
+print(denmark_forecast_df)
+print("\nSweden Forecasts:")
+print(sweden_forecast_df)
+```
+
+```{r}
+# Reset plot parameters
+#dev.off()
+par(mfrow=c(1,1), mar=c(5,4,4,2))
+
+# Denmark Variables
+plot(denmark_forecast$fcst$BNP_Diff[,1], 
+     main="Denmark BNP Forecast",
+     ylab="BNP",
+     xlab="Forecast Period",
+     type="l",
+     col="blue")
+lines(denmark_forecast$fcst$BNP_Diff[,2], lty=2, col="gray")
+lines(denmark_forecast$fcst$BNP_Diff[,3], lty=2, col="gray")
+
+plot(denmark_forecast$fcst$Inflation_Diff[,1],
+     main="Denmark Inflation Forecast",
+     ylab="Inflation",
+     xlab="Forecast Period",
+     type="l",
+     col="blue")
+
+plot(denmark_forecast$fcst$InterestRate_Diff[,1],
+     main="Denmark Interest Rate Forecast",
+     ylab="Interest Rate",
+     xlab="Forecast Period",
+     type="l",
+     col="blue")
+
+plot(denmark_forecast$fcst$Unemployment_Diff[,1],
+     main="Denmark Unemployment Forecast",
+     ylab="Unemployment",
+     xlab="Forecast Period",
+     type="l",
+     col="blue")
+
+plot(denmark_forecast$fcst$OMXC20_Diff[,1],
+     main="Denmark OMXC20 Forecast",
+     ylab="OMXC20",
+     xlab="Forecast Period",
+     type="l",
+     col="blue")
+
+# Sweden Variables
+plot(sweden_forecast$fcst$BNP_Diff[,1],
+     main="Sweden BNP Forecast",
+     ylab="BNP",
+     xlab="Forecast Period",
+     type="l",
+     col="red")
+lines(sweden_forecast$fcst$BNP_Diff[,2], lty=2, col="gray")
+lines(sweden_forecast$fcst$BNP_Diff[,3], lty=2, col="gray")
+
+plot(sweden_forecast$fcst$Inflation_Diff[,1],
+     main="Sweden Inflation Forecast", 
+     ylab="Inflation",
+     xlab="Forecast Period",
+     type="l",
+     col="red")
+
+plot(sweden_forecast$fcst$InterestRate_Diff[,1],
+     main="Sweden Interest Rate Forecast",
+     ylab="Interest Rate",
+     xlab="Forecast Period",
+     type="l",
+     col="red")
+
+plot(sweden_forecast$fcst$Unemployment_Diff[,1],
+     main="Sweden Unemployment Forecast",
+     ylab="Unemployment",
+     xlab="Forecast Period",
+     type="l",
+     col="red")
+
+plot(sweden_forecast$fcst$OMXS30_Diff[,1],
+     main="Sweden OMXS30 Forecast",
+     ylab="OMXS30",
+     xlab="Forecast Period",
+     type="l",
+     col="red")
+```
 
